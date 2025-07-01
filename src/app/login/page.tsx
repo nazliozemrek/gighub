@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { Mail,Lock } from "lucide-react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider,GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { useRouter } from "next/navigation";
+
 import { auth } from "../../../lib/firebase";
 
 export default function LoginPage() {
     const[email,setEmail] = useState("");
     const[password,setPassword] = useState("");
+    const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        router.push('dashboard');
     };
 
      const handleGoogleLogin = async () => {
@@ -21,9 +25,22 @@ export default function LoginPage() {
             const result = await signInWithPopup(auth,provider );
             const user = result.user;
             console.log("Success",user.displayName,user.email);
+            router.push('/dashboard');
         } catch (error: any ) {
             console.error("Failed",error.message);
             alert(error.message);
+        }
+    }
+
+    const handleGitHubLogin = async () => {
+        const provider = new GithubAuthProvider();
+        try {
+            const result = await signInWithPopup(auth,provider);
+            const user = result.user;
+            console.log("Success",user);
+            router.push('/dashboard')
+        } catch (error){
+            console.error("Github login failer",error);
         }
     }
 
@@ -93,7 +110,10 @@ export default function LoginPage() {
 
 
             <div className="flex flex-wrap justify-center gap-3 mb-6">
-                        <button className="p-2 border rounded-lg hover:bg-gray-100 transition">
+                        <button 
+                        type="button"
+                        onClick={handleGitHubLogin}
+                        className="p-2 border rounded-lg hover:bg-gray-100 transition">
                         <img src="https://cdn.simpleicons.org/github" alt="Github" className="h-5 w-5" />
                         </button>
                         <button 
