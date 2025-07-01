@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Mail,Lock } from "lucide-react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { GoogleAuthProvider,GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider,GithubAuthProvider, signInWithPopup,fetchSignInMethodsForEmail,linkWithCredential } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 import { auth } from "../../../lib/firebase";
@@ -11,11 +11,22 @@ import { auth } from "../../../lib/firebase";
 export default function LoginPage() {
     const[email,setEmail] = useState("");
     const[password,setPassword] = useState("");
+    const [loading,setLoading]=useState(false);
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        router.push('dashboard');
+        setLoading(true);
+        try {
+            await signInWithEmailAndPassword(auth,email,password);
+            router.push('dashboard');
+        }catch(error:any){
+            console.error("Login failed",error.message);
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
+        
     };
 
      const handleGoogleLogin = async () => {
@@ -27,10 +38,33 @@ export default function LoginPage() {
             console.log("Success",user.displayName,user.email);
             router.push('/dashboard');
         } catch (error: any ) {
-            console.error("Failed",error.message);
-            alert(error.message);
+            if(error.code === 'auth/account-exists-with-different-credential'){
+                const pendingCred = GoogleAuthProvider.credentialFromError(error);
+                const email = error.customData?.email;
+                if(!email || !pendingCred) return alert("Something went wrong.");
+
+                const methods = await fetchSignInMethodsForEmail(auth,email);
+                const existingProvider = methods[0];
+
+                if(existingProvider === "github.com"){
+                    const githubProvider = new GithubAuthProvider();
+
+                    // ask the user to sign in with Github
+                    const result = await signInWithPopup(auth,githubProvider);
+                    //link the google credential
+                    await linkWithCredential(result.user,pendingCred);
+
+                    router.push("/dashboard");
+                } else {
+                    alert(`You already signed up with a different provider:${existingProvider}`);
+                }
+                
+            } else {
+                alert(error.message);
+            }
+            
         }
-    }
+    };
 
     const handleGitHubLogin = async () => {
         const provider = new GithubAuthProvider();
@@ -39,10 +73,32 @@ export default function LoginPage() {
             const user = result.user;
             console.log("Success",user);
             router.push('/dashboard')
-        } catch (error){
-            console.error("Github login failer",error);
+        } catch (error: any){
+            if(error.code === 'auth/account-exists-with-different-credential'){
+                const pendingCred = GithubAuthProvider.credentialFromError(error);
+                const email = error.customData?.email;
+
+                if(!email ||  !pendingCred) return alert("Something went wrong");
+
+                const methods = await fetchSignInMethodsForEmail(auth,email);
+                const existingProvider = methods[0];
+
+                if(existingProvider === "google.com"){
+                    const googleProvider = new GoogleAuthProvider();
+
+                    const result = await signInWithPopup(auth,googleProvider);
+
+                    await linkWithCredential(result.user,pendingCred);
+                    router.push("/dashboard");
+                } else {
+                   alert(`You already signed up with a different provider:${existingProvider}`);
+                }
+               } else {
+                    alert(error.message);
+            }
+        
         }
-    }
+    };
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -93,9 +149,10 @@ export default function LoginPage() {
              
             <button
               type="submit"
+              disabled={loading}
               className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition mb-6"  
             >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
             </button> 
 
 
