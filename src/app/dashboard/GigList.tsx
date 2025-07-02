@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Search,Heart,HeartOff } from "lucide-react";
+import { auth } from '../../../lib/firebase';
+import { deleteDoc, doc,setDoc } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
+
 
 
 type Gig = {
@@ -20,12 +24,21 @@ export default function GigList() {
     const [searchTerm,setSearchTerm] =useState("");
     const [debouncedSearch,setDebouncedSearch] = useState("");
     const [favorites,setFavorites] = useState<Gig[]>([]);
+    
+  
+   
 
-    const toggleFavorite = (gig : Gig) => {
+    const toggleFavorite = async (gig : Gig) => {
+        const uid = auth.currentUser?.uid;
+        if(!uid) return alert("You must be logged in");
+        const gigRef = doc(db,'users',uid,'favorites',gig.id);
         const isFavorite = favorites.some((f) => f.id === gig.id);
+         
         if(isFavorite) {
+            await deleteDoc(gigRef);
             setFavorites(favorites.filter((f) => f.id !== gig.id));
         } else {
+            await setDoc(gigRef,gig);
             setFavorites([...favorites,gig]);
         }
     };
