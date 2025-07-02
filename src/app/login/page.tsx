@@ -35,7 +35,6 @@ export default function LoginPage() {
         try {
             const result = await signInWithPopup(auth,provider );
             const user = result.user;
-            console.log("Success",user.displayName,user.email);
             router.push('/dashboard');
         } catch (error: any ) {
             if(error.code === 'auth/account-exists-with-different-credential'){
