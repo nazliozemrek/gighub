@@ -5,6 +5,7 @@ import { Search,Heart,HeartOff } from "lucide-react";
 import { auth } from '../../../lib/firebase';
 import { deleteDoc, doc,setDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { motion } from 'framer-motion';
 
 
 
@@ -99,10 +100,15 @@ return (
         <div className="text-center text-gray-500">No gigs found</div>
     ) : (
         <div className="grid gap-6 mt-8">
-            {filteredGigs.map((gig) => (
-             
-                    
-                <div  key={gig.id} className="relative bg-white rounded-xl shadow p-5 border">
+            {filteredGigs.map((gig,index) => (      
+                        <motion.div
+                            key={gig.id} 
+                            initial={{opacity:0,y:20}}
+                            whileInView={{opacity:1,y:0}}
+                            viewport={{once:true}}
+                            transition={{duration:0.4,delay:index * 0.05}}
+                            className="relative bg-white rounded-xl shadow p-5 border"
+                        >
                         <button
                         onClick={() => toggleFavorite(gig)}
                         className={`absolute top-3 right-3 text-xl z-20 ${favorites.some((f) => f.id === gig.id)  ? 'text-red-500'  : 'text-gray-400'}`}
@@ -132,7 +138,7 @@ return (
                     
                         </a>
                      </div>
-                </div>
+                    </motion.div>
                 
               ))}
                 

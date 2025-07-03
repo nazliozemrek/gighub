@@ -37,7 +37,7 @@ export default function DashboardPage() {
 
   return (
     <>
-    <nav className="bg-white border-gray-200 dark:bg-gray-900">
+    <nav className="sticky top-0 z-50 bg-white border-gray-200 dark:bg-gray-900">
     <div className="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between p4">
       <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
          <img src="/logo.png" className="h-8 rounded-3xl" alt="Gighub Logo"/>
@@ -79,7 +79,7 @@ export default function DashboardPage() {
       <li>
         <a
           href="/dashboard"
-          className="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
+          className="block py-2 px-3 md:p-0 text-white  rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
         >
           Home
         </a>
@@ -87,15 +87,15 @@ export default function DashboardPage() {
        <li>
         <a
           href="/#"
-          className="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
+          className="block py-2 px-3 md:p-0 text-white rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
         >
-          About
+          Map
         </a>
       </li>
       <li>
         <a
           href="/#"
-          className="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
+          className="block py-2 px-3 md:p-0 text-white  rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
         >
           Services
         </a>
@@ -104,7 +104,7 @@ export default function DashboardPage() {
         <button
           type="submit"
           onClick={handleLogout}
-          className="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded hover:bg-gray-800 md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
+          className="block py-2 px-3 md:p-0 text-white  rounded hover:bg-gray-800 md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
         >
           {loading ? 'Logging out... ' : 'Logout'}
         </button>
